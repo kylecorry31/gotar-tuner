@@ -2,12 +2,12 @@ package gotar
 
 // ZeroCrossingFrequencyCalculator a frequency calculator which counts the number of zero crossings
 type ZeroCrossingFrequencyCalculator struct {
-	crossingThreshold float64
+	CrossingThreshold float64
 }
 
 // GetFrequency get the primary frequency of a waveform
 func (c ZeroCrossingFrequencyCalculator) GetFrequency(waveform []float64, sampleRate float64) float64 {
-	positiveThresh := c.crossingThreshold
+	positiveThresh := c.CrossingThreshold
 	negativeThresh := -positiveThresh
 
 	isPositive := waveform[0] > 0
