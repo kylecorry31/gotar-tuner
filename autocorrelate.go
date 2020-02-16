@@ -10,17 +10,6 @@ type note struct {
 	frequency float64
 }
 
-var noteMap = []string{"A", "B♭", "B", "C", "C#", "D", "E♭", "E", "F", "F#", "G", "G#"}
-
-// FrequencyInfo information about a frequency
-type FrequencyInfo struct {
-	Frequency float64
-	Note      string
-	Octave    int
-}
-
-var unknownFrequency = FrequencyInfo{0.0, "", 0}
-
 var notes = []note{
 	note{"E", 82.4069},
 	note{"A", 110},
@@ -40,8 +29,8 @@ var lastRms = 0.0
 var differences = make([]float64, len(notes))
 var lastMinDifference = 0
 
-// GetFrequencyInfo get frequency information about a waveform
-func GetFrequencyInfo(waveform []float64, sampleRate float64) FrequencyInfo {
+// AutocorrelateFrequency get frequency information about a waveform
+func AutocorrelateFrequency(waveform []float64, sampleRate float64) float64 {
 
 	searchSize := len(waveform) / 2
 
@@ -58,7 +47,7 @@ func GetFrequencyInfo(waveform []float64, sampleRate float64) FrequencyInfo {
 	rms = math.Sqrt(rms / float64(len(waveform)))
 
 	if rms < rmsMin {
-		return unknownFrequency
+		return 0
 	}
 
 	time := (time.Now().UnixNano() / 1000000)
@@ -128,28 +117,7 @@ func GetFrequencyInfo(waveform []float64, sampleRate float64) FrequencyInfo {
 
 	lastRms = rms
 
-	frequency := sampleRate / float64(actualFrequency)
-	octave := getOctave(frequency)
-	note := getNote(frequency)
-
-	return FrequencyInfo{frequency, note, octave}
-}
-
-func linearizeFreq(frequency float64) float64 {
-	return math.Log2(frequency / 440.0)
-}
-
-func getOctave(frequency float64) int {
-	semitonesFromA4 := 12 * linearizeFreq(frequency)
-	octave := 4 + ((9 + semitonesFromA4) / 12)
-	octave = math.Floor(octave)
-	return int(octave)
-}
-
-func getNote(frequency float64) string {
-	semitonesFromA4 := 12 * linearizeFreq(frequency)
-	noteNum := (12 + (int(math.Round(semitonesFromA4)) % 12)) % 12
-	return noteMap[noteNum]
+	return sampleRate / float64(actualFrequency)
 }
 
 func argmin(arr []float64) int {
